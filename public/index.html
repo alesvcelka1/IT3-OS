@@ -4,33 +4,164 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulář</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            max-width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .success-message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+        }
+
+        .error-message {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            display: none;
+            text-align: center;
+        }
+
+        .table-container {
+            margin-top: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>Jednoduchý formulář</h1>
-    <form id="dataForm">
-        <label for="name">Jméno:</label><br>
-        <input type="text" id="name" name="name"><br><br>
+    <div class="container">
+        <h1>Formulář uživatele</h1>
+        <form id="dataForm">
+            <label for="name">Jméno:</label>
+            <input type="text" id="name" name="name">
 
-        <label for="surname">Příjmení:</label><br>
-        <input type="text" id="surname" name="surname"><br><br>
+            <label for="surname">Příjmení:</label>
+            <input type="text" id="surname" name="surname">
 
-        <label for="dob">Datum narození:</label><br>
-        <input type="date" id="dob" name="dob"><br><br>
+            <label for="dob">Datum narození:</label>
+            <input type="date" id="dob" name="dob">
 
-        <label for="address">Místo bydliště:</label><br>
-        <input type="text" id="address" name="address"><br><br>
+            <label for="address">Místo bydliště:</label>
+            <input type="text" id="address" name="address">
 
-        <label for="phone">Telefonní číslo:</label><br>
-        <input type="text" id="phone" name="phone"><br><br>
+            <label for="phone">Telefonní číslo:</label>
+            <input type="text" id="phone" name="phone">
 
-        <label for="email">Email:</label><br>
-        <input type="email" id="email" name="email"><br><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email">
 
-        <button type="submit">Odeslat</button>
-    </form>
+            <button type="submit">Odeslat</button>
+        </form>
+
+        <div class="success-message" id="successMessage">Data byla úspěšně uložena!</div>
+        <div class="error-message" id="errorMessage">Došlo k chybě při ukládání dat.</div>
+    </div>
+
+    <div class="table-container">
+        <h2>Uložená data</h2>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>Jméno</th>
+                    <th>Příjmení</th>
+                    <th>Datum narození</th>
+                    <th>Místo bydliště</th>
+                    <th>Telefon</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
     <script>
         const form = document.getElementById('dataForm');
+        const successMessage = document.getElementById('successMessage');
+        const errorMessage = document.getElementById('errorMessage');
+        const userTable = document.getElementById('userTable').querySelector('tbody');
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -43,20 +174,53 @@
                 email: document.getElementById('email').value
             };
 
-            const response = await fetch('/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-            if (response.ok) {
-                alert('Data byla odeslána!');
-            } else {
-                alert('Došlo k chybě.');
+                if (response.ok) {
+                    successMessage.style.display = 'block';
+                    errorMessage.style.display = 'none';
+                    form.reset();
+                    fetchUsers(); // Znovu načte data po odeslání formuláře
+                } else {
+                    throw new Error('Chyba při odesílání dat.');
+                }
+            } catch (error) {
+                successMessage.style.display = 'none';
+                errorMessage.style.display = 'block';
             }
         });
+
+        // Funkce pro načtení uživatelů a jejich zobrazení v tabulce
+        async function fetchUsers() {
+            const response = await fetch('/users');
+            const users = await response.json();
+
+            // Vyčistíme tabulku před novým zobrazením
+            userTable.innerHTML = '';
+
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td>${user.surname}</td>
+                    <td>${user.dob}</td>
+                    <td>${user.address}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.email}</td>
+                `;
+                userTable.appendChild(row);
+            });
+        }
+
+        // Načti uživatele při načtení stránky
+        fetchUsers();
     </script>
 </body>
 </html>
