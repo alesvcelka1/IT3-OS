@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulář</title>
+</head>
+<body>
+    <h1>Jednoduchý formulář</h1>
+    <form id="dataForm">
+        <label for="name">Jméno:</label><br>
+        <input type="text" id="name" name="name"><br><br>
+
+        <label for="surname">Příjmení:</label><br>
+        <input type="text" id="surname" name="surname"><br><br>
+
+        <label for="dob">Datum narození:</label><br>
+        <input type="date" id="dob" name="dob"><br><br>
+
+        <label for="address">Místo bydliště:</label><br>
+        <input type="text" id="address" name="address"><br><br>
+
+        <label for="phone">Telefonní číslo:</label><br>
+        <input type="text" id="phone" name="phone"><br><br>
+
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br><br>
+
+        <button type="submit">Odeslat</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('dataForm');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                name: document.getElementById('name').value,
+                surname: document.getElementById('surname').value,
+                dob: document.getElementById('dob').value,
+                address: document.getElementById('address').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value
+            };
+
+            const response = await fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Data byla odeslána!');
+            } else {
+                alert('Došlo k chybě.');
+            }
+        });
+    </script>
+</body>
+</html>
+
